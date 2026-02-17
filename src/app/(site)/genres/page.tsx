@@ -1,0 +1,17 @@
+import { Metadata } from 'next'
+import { preloadQuery } from 'convex/nextjs'
+import { api } from '../../../../convex/_generated/api'
+
+import { GenresClient } from '../genres-client'
+
+export const metadata: Metadata = {
+  title: 'Genres',
+  description:
+    'Discover all the movie genres featured in the Four Favorites celebrity picks.'
+}
+
+export default async function GenresPage() {
+  const preloadedGenres = await preloadQuery(api.artists.getAllGenres)
+
+  return <GenresClient preloadedGenres={preloadedGenres} />
+}
