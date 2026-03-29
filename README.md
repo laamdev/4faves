@@ -12,27 +12,30 @@ their most cherished movies.
   from famous filmmakers, actors, and critics
 - **Personal Collections**: Create and share your own 4faves movie list
 - **Movie Search**: Powered by TMDB API for comprehensive movie data
-- **User Authentication**: Secure authentication with Convex Auth
+- **User Authentication**: Secure authentication with Clerk + Convex Auth
 - **Responsive Design**: Beautiful, modern UI that works across all devices
 - **Social Features**: Like and share favorite lists from other users
 - **Advanced Filtering**: Sort and filter lists by various criteria (role, name,
   publishing date)
-- **Real-time Updates**: Instant updates using Next.js server actions
+- **Real-time Updates**: Powered by Convex's reactive queries
 - **Beautiful Animations**: Smooth transitions and interactions using Framer
   Motion
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org/) (React 19)
+- **Framework**: [Next.js 16](https://nextjs.org/) (React 19)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) with
   [shadcn/ui](https://ui.shadcn.com/)
-- **Database**: PostgreSQL ([Neon](https://neon.tech/))
-- **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
-- **Authentication**: [Convex Auth](https://www.convex.dev/auth)
+- **Backend**: [Convex](https://www.convex.dev/) (database, real-time queries,
+  server functions)
+- **Authentication**: [Clerk](https://clerk.com/) + [Convex Auth](https://www.convex.dev/auth)
+- **Email**: [Resend](https://resend.com/) via `@convex-dev/resend`
+- **File Storage**: Cloudflare R2 via `@convex-dev/r2`
 - **UI/UX**:
   - [Framer Motion](https://www.framer.com/motion/)
   - [Embla Carousel](https://www.embla-carousel.com/)
   - [Phosphor Icons](https://phosphoricons.com/)
+- **Analytics**: [Vercel Analytics](https://vercel.com/analytics) + [Speed Insights](https://vercel.com/docs/speed-insights)
 - **Development**:
   - TypeScript
   - ESLint
@@ -43,9 +46,9 @@ their most cherished movies.
 ### Prerequisites
 
 - Node.js 18+ or Bun 1.0+
-- PostgreSQL database (or Neon account)
+- [Convex](https://www.convex.dev/) account
 - TMDB API key
-- Google OAuth
+- [Clerk](https://clerk.com/) account
 
 ### Installation
 
@@ -59,51 +62,48 @@ their most cherished movies.
 2. Install dependencies:
 
    ```bash
-   bun install
+   pnpm install
    ```
 
 3. Set up environment variables: Create a `.env.local` file with the following
    variables:
 
    ```env
-   # Database
-   DATABASE_URL=your_database_url
+   # Convex
+   NEXT_PUBLIC_CONVEX_URL=your_convex_deployment_url
 
    # TMDB API
    TMDB_READ_TOKEN=your_tmdb_api_token
    ```
 
-4. Initialize the database:
+4. Start the Convex dev server (in a separate terminal):
 
    ```bash
-   bun run generate   # Generate migrations
-   bun run push      # Push to database
+   npx convex dev
    ```
 
 5. Start the development server:
    ```bash
-   bun run dev
+   pnpm dev
    ```
 
 Visit `http://localhost:3000` to see the application running.
 
 ## 📦 Scripts
 
-- `bun run dev` - Start development server
-- `bun run build` - Build for production
-- `bun run start` - Start production server
-- `bun run lint` - Run ESLint
-- `bun run generate` - Generate Drizzle migrations
-- `bun run push` - Push migrations to database
-- `bun run studio` - Open Drizzle Studio
+- `pnpm dev` - Start Next.js development server (with Turbopack)
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
+- `pnpm convex:dev` - Start Convex dev server
+- `pnpm convex:deploy` - Deploy Convex functions to production
 
 ## 🔑 Environment Variables
 
-| Variable                   | Description                                      |
-| -------------------------- | ------------------------------------------------ |
-| `DATABASE_URL`             | PostgreSQL connection string (for migration)     |
-| `NEXT_PUBLIC_CONVEX_URL`   | Convex deployment URL (dev and prod differ)      |
-| `TMDB_READ_TOKEN`          | TMDB API read access token                      |
+| Variable                 | Description                                 |
+| ------------------------ | ------------------------------------------- |
+| `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL (dev and prod differ) |
+| `TMDB_READ_TOKEN`        | TMDB API read access token                  |
 
 ## 🔧 Troubleshooting
 
@@ -114,7 +114,7 @@ Convex uses **two deployments**: development and production. The migration scrip
 - If you ran the migration **before** or **without** `npx convex dev`, `.env.local` might have pointed at **production**. Later, `npx convex dev` can overwrite `.env.local` with the **development** URL, so the app talks to the dev deployment (which has no data).
 - **Fix:** Use the deployment that has the data.
   1. Open the [Convex dashboard](https://dashboard.convex.dev/) and check **Settings** or **Data** for each deployment (dev vs prod) to see which one has the migrated data.
-  2. Copy that deployment’s URL (e.g. `https://exuberant-impala-741.eu-west-1.convex.cloud`).
+  2. Copy that deployment's URL (e.g. `https://exuberant-impala-741.eu-west-1.convex.cloud`).
   3. Set `NEXT_PUBLIC_CONVEX_URL` in `.env.local` to that exact URL.
   4. Restart `pnpm dev` (and keep `npx convex dev` running if you use it).
 
