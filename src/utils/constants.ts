@@ -1,7 +1,7 @@
 export const SITE = {
-  TITLE: 'Four Favorites',
+  TITLE: '4faves',
   DESCRIPTION:
-    "An ever-growing collection of Letterboxd's Four Favorites picks by celebrities.",
+    "An ever-growing collection of Letterboxd's 4faves picks by celebrities.",
   URL: 'https://fourfavourites.com'
 }
 

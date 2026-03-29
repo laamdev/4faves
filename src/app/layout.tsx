@@ -8,6 +8,8 @@ import { Toaster } from '@/components/ui/sonner'
 import { Footer } from '@/components/navigation/footer'
 import { Header } from '@/components/navigation/header'
 import { ConvexClientProvider } from '@/components/globals/convex-client-provider'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 import { cn } from '@/lib/utils'
 import { SITE } from '@/utils/constants'
@@ -251,6 +253,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             <main>{children}</main>
             <Toaster position='bottom-left' />
             <Footer />
+            <Analytics />
+            <SpeedInsights />
           </body>
         </html>
       </ConvexClientProvider>

@@ -30,8 +30,8 @@ export const generateMetadata = async ({
   return {
     title: genreName ? `${genreName} Movies` : 'Movies',
     description: genreName
-      ? `A list of ${genreName.toLowerCase()} movies from Four Favorites celebrity picks.`
-      : 'A list of all the movies present in a Four Favorites celebrity pick.'
+      ? `A list of ${genreName.toLowerCase()} movies from 4faves celebrity picks.`
+      : 'A list of all the movies present in a 4faves celebrity pick.'
   }
 }
 
@@ -47,7 +47,7 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
     <div>
       <Hero
         title={`${genreName ?? 'All'} Movies`}
-        summary={`Discover all the movies featured in the the Four Favorites celebrity picks.`}
+        summary={`Discover all the movies featured in the 4faves celebrity picks.`}
         isCentered
       />
 

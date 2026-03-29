@@ -86,7 +86,7 @@ export function HomeClient({
   return (
     <div>
       <Hero
-        title='Four Favorites'
+        title='4faves'
         summary={
           <>
             <div className='flex flex-wrap items-baseline justify-center gap-x-1 text-center'>
@@ -189,7 +189,7 @@ export function HomeClient({
           />
           <div className='mt-2 flex flex-col items-center gap-y-6 text-center sm:mt-4'>
             <p className='max-w-2xl text-neutral-300'>
-              If you've found a Four Favorites list that's not on our website,
+              If you've found a 4faves list that's not on our website,
               or noticed any errors, please let us know. We're always looking to
               expand our collection.
             </p>

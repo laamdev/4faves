@@ -31,7 +31,7 @@ export const DirectorDetailClient = ({
         title={director.name}
         summary={`${director.movies.length} ${
           director.movies.length === 1 ? 'movie' : 'movies'
-        } featured in the Four Favorites celebrity picks.`}
+        } featured in the 4faves celebrity picks.`}
       />
 
       <div className='container py-4 sm:py-8'>

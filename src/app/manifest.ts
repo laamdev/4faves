@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: '4Faves',
     short_name: '4Faves',
     description:
-      "An ever-growing collection of Letterboxd's Four Favorites lists.",
+      "An ever-growing collection of Letterboxd's 4faves lists.",
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

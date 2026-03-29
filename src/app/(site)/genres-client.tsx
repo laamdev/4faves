@@ -22,7 +22,7 @@ export function GenresClient({ preloadedGenres }: GenresClientProps) {
     <div>
       <Hero
         title='Genres'
-        summary='Discover all the movie genres featured in the Four Favorites celebrity picks.'
+        summary='Discover all the movie genres featured in the 4faves celebrity picks.'
         isCentered
       />
 

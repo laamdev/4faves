@@ -7,7 +7,7 @@ import { GenresClient } from '../genres-client'
 export const metadata: Metadata = {
   title: 'Genres',
   description:
-    'Discover all the movie genres featured in the Four Favorites celebrity picks.'
+    'Discover all the movie genres featured in the 4faves celebrity picks.'
 }
 
 export default async function GenresPage() {

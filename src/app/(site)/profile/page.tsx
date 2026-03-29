@@ -48,8 +48,8 @@ export default function ProfilePage() {
   return (
     <div>
       <Hero
-        title='My Four Favorites'
-        summary='Select your favorite movies to create your own Four Favorites lists.'
+        title='My 4faves'
+        summary='Select your favorite movies to create your own 4faves lists.'
       />
 
       <SectionContainer>

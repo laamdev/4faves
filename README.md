@@ -1,16 +1,16 @@
-# Four Favorites 🎬
+# 4faves 🎬
 
-A curated collection of Letterboxd's Four Favorites celebrity picks, where
+A curated collection of Letterboxd's 4faves celebrity picks, where
 renowned filmmakers, actors, and critics share their all-time favorite movies.
 Inspired by this concept, users can also create and share their own personal
-Four Favorites lists, making it a growing community of film enthusiasts and
+4faves lists, making it a growing community of film enthusiasts and
 their most cherished movies.
 
 ## ✨ Features
 
-- **Celebrity Lists**: Browse through Letterboxd's collection of Four Favorites
+- **Celebrity Lists**: Browse through Letterboxd's collection of 4faves
   from famous filmmakers, actors, and critics
-- **Personal Collections**: Create and share your own Four Favorites movie list
+- **Personal Collections**: Create and share your own 4faves movie list
 - **Movie Search**: Powered by TMDB API for comprehensive movie data
 - **User Authentication**: Secure authentication with Convex Auth
 - **Responsive Design**: Beautiful, modern UI that works across all devices
@@ -52,8 +52,8 @@ their most cherished movies.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/four-favorites.git
-   cd four-favorites
+   git clone https://github.com/yourusername/4faves.git
+   cd 4faves
    ```
 
 2. Install dependencies:

@@ -42,7 +42,7 @@ export default function DirectorsPage() {
     <div>
       <Hero
         title='Directors'
-        summary={`Discover all the directors featured in the Four Favorites celebrity picks.`}
+        summary={`Discover all the directors featured in the 4faves celebrity picks.`}
         isCentered
       />
 

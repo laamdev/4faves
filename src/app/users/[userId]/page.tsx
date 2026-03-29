@@ -32,7 +32,7 @@ export default function UserPage({ params }: UserPageProps) {
     <div className='mt-16 mb-12 sm:mt-24'>
       <div>
         <PageTitle className='flex flex-col'>
-          <span>Four Favorites</span>
+          <span>4faves</span>
         </PageTitle>
         <PageSummary>
           A curated collection of four all-time favorite films.

@@ -4,22 +4,22 @@ export const Footer = () => {
       <div className='tw-animation text-center text-[10px] text-neutral-400 sm:text-xs'>
         <span>{`Created by `}</span>
         <a
-          href='https://www.laam.dev'
+          href='https://github.com/laamdev'
           target='_blank'
           rel='noopener noreferrer'
           className='tw-animation hover:text-primary font-medium underline'
         >
-          {`laam.dev.`}
+          {`LAAM`}
         </a>
 
-        <span>{` If you like my work, `}</span>
+        <span>{`Contribute to the maintenance of the project `}</span>
         <a
           href='https://buymeacoffee.com/laamdev'
           target='_blank'
           rel='noopener noreferrer'
           className='tw-animation hover:text-primary font-medium underline'
         >
-          {`buy me a cofee!`}
+          {`here.`}
         </a>
       </div>
     </footer>

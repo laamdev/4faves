@@ -29,7 +29,7 @@ export function StatsClient({
     <div>
       <Hero
         title='Stats'
-        summary='Visualize stats of the Four Favorites celebrity pick lists.'
+        summary='Visualize stats of the 4faves celebrity pick lists.'
         isCentered
       />
 
