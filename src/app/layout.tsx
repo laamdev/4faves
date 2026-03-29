@@ -3,7 +3,7 @@ import '@/app/globals.css'
 import { ReactNode } from 'react'
 import { Metadata } from 'next'
 import localFont from 'next/font/local'
-import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server'
+import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from '@/components/ui/sonner'
 import { Footer } from '@/components/navigation/footer'
 import { Header } from '@/components/navigation/header'
@@ -234,7 +234,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <ConvexAuthNextjsServerProvider>
+    <ClerkProvider>
       <ConvexClientProvider>
         <html
           lang='en'
@@ -254,6 +254,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           </body>
         </html>
       </ConvexClientProvider>
-    </ConvexAuthNextjsServerProvider>
+    </ClerkProvider>
   )
 }

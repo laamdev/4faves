@@ -10,7 +10,7 @@ interface MoviePageProps {
 export default async function MoviePage({ params }: MoviePageProps) {
   const { movieSlug } = await params
 
-  const preloadedMovie = await preloadQuery(api.movies.getMovie, {
+  const preloadedMovie = await preloadQuery(api.model.movies.findMovie, {
     slug: movieSlug
   })
 

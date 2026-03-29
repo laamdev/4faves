@@ -22,7 +22,7 @@ export const ViewToggleGroup = () => {
   }
 
   return (
-    <ToggleGroup type="single" defaultValue={`${view}`}>
+    <ToggleGroup defaultValue={[`${view}`]}>
       <ToggleGroupItem
         value="grid"
         aria-label="Toggle grid"

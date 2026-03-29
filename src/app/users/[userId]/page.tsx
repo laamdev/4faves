@@ -18,7 +18,7 @@ interface UserPageProps {
 export default function UserPage({ params }: UserPageProps) {
   const { userId } = use(params)
 
-  const favorites = useQuery(api.userMovies.getUserFavorites, { userId })
+  const favorites = useQuery(api.model.userMovies.listUserFavorites, { userId })
 
   if (favorites === undefined) {
     return (

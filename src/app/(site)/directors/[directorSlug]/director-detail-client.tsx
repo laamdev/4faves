@@ -12,7 +12,7 @@ import { PageBreadcrumb } from '@/components/globals/page-breadcrumb'
 import type { api } from '../../../../../convex/_generated/api'
 
 interface DirectorDetailClientProps {
-  preloadedDirector: Preloaded<typeof api.artists.getDirector>
+  preloadedDirector: Preloaded<typeof api.model.artists.findDirector>
 }
 
 export const DirectorDetailClient = ({

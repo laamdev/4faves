@@ -22,7 +22,7 @@ export const MoviesGrid = ({
 }: MoviesGridProps) => {
   const moviesPerPage = 10
 
-  const result = useQuery(api.movies.getRankedMovies, {
+  const result = useQuery(api.model.movies.listRankedMovies, {
     filter: filter as string,
     sort: sort as string,
     query: query as string,

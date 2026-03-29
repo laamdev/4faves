@@ -11,11 +11,11 @@ export default async function FourFavoritesPage() {
     preloadedNewStars,
     preloadedOldStars
   ] = await Promise.all([
-    preloadQuery(api.favorites.getMostRecentFavorite),
-    preloadQuery(api.featured.getNewDirectors),
-    preloadQuery(api.featured.getOldDirectors),
-    preloadQuery(api.featured.getNewStars),
-    preloadQuery(api.featured.getOldStars)
+    preloadQuery(api.model.favorites.findMostRecentFavorite),
+    preloadQuery(api.model.featured.listNewDirectors),
+    preloadQuery(api.model.featured.listOldDirectors),
+    preloadQuery(api.model.featured.listNewStars),
+    preloadQuery(api.model.featured.listOldStars)
   ])
 
   return (

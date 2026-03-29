@@ -7,9 +7,9 @@ import { SimpleCard } from '@/components/globals/simple-card'
 import { Hero } from '@/components/globals/hero'
 import { SectionContainer } from '@/components/globals/section-wrapper'
 
-import { api } from '../../../../convex/_generated/api'
+import { api } from '../../../convex/_generated/api'
 
-type GetAllGenresPreloaded = Preloaded<typeof api.artists.getAllGenres>
+type GetAllGenresPreloaded = Preloaded<typeof api.model.artists.listGenres>
 
 interface GenresClientProps {
   preloadedGenres: GetAllGenresPreloaded

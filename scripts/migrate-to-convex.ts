@@ -57,7 +57,7 @@ async function migrateMovies() {
   const { rows } = await pool.query('SELECT * FROM movies ORDER BY id')
 
   for (const row of rows) {
-    const convexId = await convex.mutation(api.migration.insertMovie, {
+    const convexId = await convex.mutation(api.model.migration.insertMovie, {
       name: row.name,
       overview: row.overview || '',
       releaseDate: row.release_date
@@ -83,7 +83,7 @@ async function migrateArtists() {
   const { rows } = await pool.query('SELECT * FROM artists ORDER BY id')
 
   for (const row of rows) {
-    const convexId = await convex.mutation(api.migration.insertArtist, {
+    const convexId = await convex.mutation(api.model.migration.insertArtist, {
       name: row.name,
       role: row.role,
       headshotUrl: row.headshot_url || undefined,
@@ -102,7 +102,7 @@ async function migrateFavorites() {
   const { rows } = await pool.query('SELECT * FROM favorites ORDER BY id')
 
   for (const row of rows) {
-    const convexId = await convex.mutation(api.migration.insertFavorite, {
+    const convexId = await convex.mutation(api.model.migration.insertFavorite, {
       name: row.name,
       likes: Number(row.likes) || 0,
       publishingDate: row.publishing_date
@@ -139,7 +139,7 @@ async function migrateMoviesToFavorites() {
       continue
     }
 
-    await convex.mutation(api.migration.insertMovieToFavorite, {
+    await convex.mutation(api.model.migration.insertMovieToFavorite, {
       movieId,
       favoriteId,
     })
@@ -165,7 +165,7 @@ async function migrateArtistsToFavorites() {
       continue
     }
 
-    await convex.mutation(api.migration.insertArtistToFavorite, {
+    await convex.mutation(api.model.migration.insertArtistToFavorite, {
       artistId,
       favoriteId,
     })
@@ -190,7 +190,7 @@ async function migrateUserMovies() {
       continue
     }
 
-    await convex.mutation(api.migration.insertUserMovie, {
+    await convex.mutation(api.model.migration.insertUserMovie, {
       userId: row.user_id,
       movieId,
       position: row.position,
@@ -216,7 +216,7 @@ async function migrateUserLikes() {
       continue
     }
 
-    await convex.mutation(api.migration.insertUserLike, {
+    await convex.mutation(api.model.migration.insertUserLike, {
       userId: row.user_id,
       favoriteId,
     })

@@ -107,6 +107,7 @@ export const MovieHero = ({ movie }: MovieHeroProps) => {
               src={`https://image.tmdb.org/t/p/w780${movie.posterUrl}`}
               alt={movie.name}
               fill
+              sizes='(max-width: 640px) 100vw, 33vw'
               className='tw-gradient border object-cover object-center'
             />
           </div>

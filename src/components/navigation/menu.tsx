@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useConvexAuth } from 'convex/react'
-import { useAuthActions } from '@convex-dev/auth/react'
+import { useUser, useClerk } from '@clerk/nextjs'
 
 import {
   Menubar,
@@ -13,8 +12,8 @@ import {
 } from '@/components/ui/menubar'
 
 export const Menu = () => {
-  const { isAuthenticated } = useConvexAuth()
-  const { signOut } = useAuthActions()
+  const { user } = useUser()
+  const { signOut } = useClerk()
 
   return (
     <Menubar>
@@ -44,7 +43,7 @@ export const Menu = () => {
       <MenubarMenu>
         <MenubarTrigger className='cursor-pointer'>Profile</MenubarTrigger>
         <MenubarContent>
-          {!isAuthenticated ? (
+          {!user ? (
             <>
               <Link href='/sign-in'>
                 <MenubarItem className='w-full cursor-pointer'>

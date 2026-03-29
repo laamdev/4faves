@@ -1,8 +1,9 @@
 import { v } from 'convex/values'
-import { getAuthUserId } from '@convex-dev/auth/server'
-import { query } from './_generated/server'
+import { QueryCtx, query } from '../_generated/server'
+import { getCurrentUser } from '../auth'
+import { ensureFP } from '../ensure'
 
-export const getFavorites = query({
+export const listFavorites = query({
   args: {
     filter: v.optional(v.string()),
     sort: v.optional(v.string()),
@@ -110,75 +111,85 @@ export const getFavorites = query({
   },
 })
 
-export const getFavorite = query({
-  args: { slug: v.string() },
-  handler: async (ctx, args) => {
-    const favorite = await ctx.db
-      .query('favorites')
-      .withIndex('by_slug', (q) => q.eq('slug', args.slug))
+async function _findFavorite(ctx: QueryCtx, slug: string) {
+  const favorite = await ctx.db
+    .query('favorites')
+    .withIndex('by_slug', (q) => q.eq('slug', slug))
+    .first()
+
+  if (!favorite) return null
+
+  const user = await getCurrentUser(ctx)
+
+  const atfs = await ctx.db
+    .query('artistsToFavorites')
+    .withIndex('by_favorite', (q) => q.eq('favoriteId', favorite._id))
+    .collect()
+
+  const artists = await Promise.all(
+    atfs.map(async (atf) => {
+      const artist = await ctx.db.get(atf.artistId)
+      return artist
+        ? {
+            _id: artist._id,
+            name: artist.name,
+            role: artist.role,
+            headshotUrl: artist.headshotUrl,
+            slug: artist.slug,
+          }
+        : null
+    })
+  )
+
+  const mtfs = await ctx.db
+    .query('moviesToFavorites')
+    .withIndex('by_favorite', (q) => q.eq('favoriteId', favorite._id))
+    .collect()
+
+  const movies = await Promise.all(
+    mtfs.map(async (mtf) => await ctx.db.get(mtf.movieId))
+  )
+
+  let likedByUser = false
+  if (user) {
+    const like = await ctx.db
+      .query('userLikes')
+      .withIndex('by_user_favorite', (q) =>
+        q.eq('userId', user._id).eq('favoriteId', favorite._id)
+      )
       .first()
+    likedByUser = !!like
+  }
 
-    if (!favorite) return null
+  return {
+    ...favorite,
+    likedByUser,
+    artists: artists.filter(Boolean),
+    movies: movies.filter(Boolean),
+  }
+}
 
-    const userId = await getAuthUserId(ctx)
-
-    const atfs = await ctx.db
-      .query('artistsToFavorites')
-      .withIndex('by_favorite', (q) => q.eq('favoriteId', favorite._id))
-      .collect()
-
-    const artists = await Promise.all(
-      atfs.map(async (atf) => {
-        const artist = await ctx.db.get(atf.artistId)
-        return artist
-          ? {
-              _id: artist._id,
-              name: artist.name,
-              role: artist.role,
-              headshotUrl: artist.headshotUrl,
-              slug: artist.slug,
-            }
-          : null
-      })
-    )
-
-    const mtfs = await ctx.db
-      .query('moviesToFavorites')
-      .withIndex('by_favorite', (q) => q.eq('favoriteId', favorite._id))
-      .collect()
-
-    const movies = await Promise.all(
-      mtfs.map(async (mtf) => await ctx.db.get(mtf.movieId))
-    )
-
-    let likedByUser = false
-    if (userId) {
-      const like = await ctx.db
-        .query('userLikes')
-        .withIndex('by_user_favorite', (q) =>
-          q.eq('userId', userId).eq('favoriteId', favorite._id)
-        )
-        .first()
-      likedByUser = !!like
-    }
-
-    return {
-      ...favorite,
-      likedByUser,
-      artists: artists.filter(Boolean),
-      movies: movies.filter(Boolean),
-    }
-  },
+export const findFavorite = query({
+  args: { slug: v.string() },
+  handler: (ctx, args) => _findFavorite(ctx, args.slug),
 })
 
-export const getFavoritesSlugs = query({
+export const getFavorite = query({
+  args: { slug: v.string() },
+  handler: (ctx, args) =>
+    _findFavorite(ctx, args.slug).then(
+      ensureFP(`Favorite not found: ${args.slug}`)
+    ),
+})
+
+export const listFavoriteSlugs = query({
   handler: async (ctx) => {
     const favorites = await ctx.db.query('favorites').collect()
     return favorites.map((f) => f.slug)
   },
 })
 
-export const getMostRecentFavorite = query({
+export const findMostRecentFavorite = query({
   handler: async (ctx) => {
     const favorites = await ctx.db
       .query('favorites')
@@ -192,7 +203,7 @@ export const getMostRecentFavorite = query({
   },
 })
 
-export const getFavoriteListMovies = query({
+export const listFavoriteMovies = query({
   handler: async (ctx) => {
     const allMtf = await ctx.db.query('moviesToFavorites').collect()
 

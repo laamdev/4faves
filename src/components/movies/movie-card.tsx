@@ -24,6 +24,7 @@ export const MovieCard = ({
           src={image}
           alt={heading}
           fill
+          sizes='(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw'
           className='tw-gradient tw-animation relative border object-cover object-center'
         />
       </div>

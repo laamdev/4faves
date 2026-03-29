@@ -11,12 +11,12 @@ import { api } from '../../../../convex/_generated/api'
 
 export default function DirectorsPage() {
   const [limit, setLimit] = useState(20)
-  const observerRef = useRef<IntersectionObserver>()
+  const observerRef = useRef<IntersectionObserver>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  const directors = useQuery(api.artists.getAllDirectors, {
+  const directors = useQuery(api.model.artists.listDirectors, {
     offset: 0,
-    limit
+    limit,
   })
 
   const isLoading = directors === undefined

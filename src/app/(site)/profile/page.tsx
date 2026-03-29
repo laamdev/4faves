@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useConvexAuth, useQuery } from 'convex/react'
+import { useQuery } from 'convex/react'
+import { useUser } from '@clerk/nextjs'
 import { Plus } from '@phosphor-icons/react'
 
 import { UserMovieActionButtons } from '@/components/user/user-movie-action-buttons'
@@ -16,22 +17,22 @@ import { api } from '../../../../convex/_generated/api'
 import { getYear } from '@/lib/utils'
 
 export default function ProfilePage() {
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
-  const currentUser = useQuery(api.users.currentUser)
+  const { user: clerkUser, isLoaded: authLoaded } = useUser()
+  const currentUser = useQuery(api.model.users.findMe)
 
   const userId = currentUser?._id
 
   const userMovies = useQuery(
-    api.userMovies.getUserMovies,
+    api.model.userMovies.listUserMovies,
     userId ? { userId } : 'skip'
   )
 
   const userLikedFavoriteLists = useQuery(
-    api.userLikes.getUserLikedFavorites,
+    api.model.userLikes.listUserLikedFavorites,
     userId ? { userId } : 'skip'
   )
 
-  if (authLoading || !isAuthenticated) return null
+  if (!authLoaded || !clerkUser) return null
   if (
     currentUser === undefined ||
     userMovies === undefined ||
@@ -66,6 +67,7 @@ export default function ProfilePage() {
                     src={`https://image.tmdb.org/t/p/w780${movie.movie.posterUrl}`}
                     alt={movie.movie.name}
                     fill
+                    sizes='(max-width: 640px) 50vw, 25vw'
                     className='bg-card tw-animation relative object-cover object-center'
                   />
 
@@ -113,19 +115,22 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div className='mt-4 grid grid-cols-2 gap-4 sm:mt-8 sm:grid-cols-5'>
-              {userLikedFavoriteLists.map((item: any) => (
-                <ItemCard
-                  key={item.favorite._id}
-                  slug={`/lists/${item.favorite.slug}`}
-                  heading={item.favorite.name}
-                  subheading={item.favorite.artists?.[0]?.role}
-                  image={
-                    item.favorite.artists?.[0]?.headshotUrl
-                      ? `https://image.tmdb.org/t/p/h632${item.favorite.artists[0].headshotUrl}`
-                      : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe957375e70239d6abdd549fd7568c89281b2179b5f4470e2e12895792dfa5.svg'
-                  }
-                />
-              ))}
+              {userLikedFavoriteLists.map((item) => {
+                if (!item) return null
+                return (
+                  <ItemCard
+                    key={item.favorite._id}
+                    slug={`/lists/${item.favorite.slug}`}
+                    heading={item.favorite.name}
+                    subheading={item.favorite.artists?.[0]?.role}
+                    image={
+                      item.favorite.artists?.[0]?.headshotUrl
+                        ? `https://image.tmdb.org/t/p/h632${item.favorite.artists[0].headshotUrl}`
+                        : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe957375e70239d6abdd549fd7568c89281b2179b5f4470e2e12895792dfa5.svg'
+                    }
+                  />
+                )
+              })}
             </div>
           )}
         </div>

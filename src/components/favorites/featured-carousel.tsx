@@ -13,7 +13,7 @@ import { ItemCard } from '@/components/globals/item-card'
 
 import { cn } from '@/lib/utils'
 
-type Artist = {
+export type Artist = {
   id: number | string
   name: string
   headshotUrl: string | null

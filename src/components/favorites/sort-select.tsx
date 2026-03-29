@@ -15,7 +15,7 @@ export const SortSelect = ({ sort }: { sort: string }) => {
   const pathname = usePathname()
   const { replace } = useRouter()
 
-  const handleSort = (sort: string) => {
+  const handleSort = (sort: string | null) => {
     const params = new URLSearchParams(searchParams)
     if (sort) {
       params.set('sort', sort)

@@ -1,8 +1,8 @@
 import { v } from 'convex/values'
-import { getAuthUserId } from '@convex-dev/auth/server'
-import { query, mutation } from './_generated/server'
+import { query, mutation } from '../_generated/server'
+import { requireUser } from '../auth'
 
-export const getUserLikedFavorites = query({
+export const listUserLikedFavorites = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
     const likes = await ctx.db
@@ -39,17 +39,17 @@ export const getUserLikedFavorites = query({
           },
         }
       })
-    ).then((results) => results.filter(Boolean))
+    ).then((results) => results.filter((r): r is NonNullable<typeof r> => r !== null))
   },
 })
 
-export const likeFavorite = mutation({
+export const toggleMyLike = mutation({
   args: {
     favoriteId: v.id('favorites'),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Unauthorized')
+    const user = await requireUser(ctx)
+    const userId = user._id
 
     const existingLike = await ctx.db
       .query('userLikes')

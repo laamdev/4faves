@@ -21,7 +21,7 @@ interface AddMovieButtonProps {
 
 export const AddMovieButton = ({ movie, position }: AddMovieButtonProps) => {
   const router = useRouter()
-  const addUserMovie = useMutation(api.userMovies.addUserMovie)
+  const addUserMovie = useMutation(api.model.userMovies.addMyMovie)
 
   return (
     <div className='tw-animation absolute left-4 top-4 z-50'>

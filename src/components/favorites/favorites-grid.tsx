@@ -22,7 +22,7 @@ export const FavoritesGrid = ({
 }: FavoritesGridProps) => {
   const favoritesPerPage = 10
 
-  const result = useQuery(api.favorites.getFavorites, {
+  const result = useQuery(api.model.favorites.listFavorites, {
     filter: filter as string,
     sort: sort as string,
     query: query as string,

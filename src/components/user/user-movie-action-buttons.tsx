@@ -19,7 +19,7 @@ export const UserMovieActionButtons = ({
   position,
   movieSlug
 }: UserMovieActionButtonsProps) => {
-  const deleteUserMovie = useMutation(api.userMovies.deleteUserMovie)
+  const deleteUserMovie = useMutation(api.model.userMovies.deleteMyMovie)
 
   return (
     <div className='tw-animation absolute top-4 left-4 z-50 flex flex-col gap-y-2'>

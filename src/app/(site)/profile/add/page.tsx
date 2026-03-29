@@ -49,6 +49,7 @@ export default async function AddMoviePage({
                       src={`https://image.tmdb.org/t/p/w780${movie.poster_path}`}
                       alt={movie.title}
                       fill
+                      sizes='(max-width: 640px) 50vw, 20vw'
                       className='bg-card tw-animation relative object-cover object-center'
                     />
 

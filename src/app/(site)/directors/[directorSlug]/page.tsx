@@ -10,7 +10,7 @@ interface DirectorPageProps {
 export default async function DirectorPage({ params }: DirectorPageProps) {
   const { directorSlug } = await params
 
-  const preloadedDirector = await preloadQuery(api.artists.getDirector, {
+  const preloadedDirector = await preloadQuery(api.model.artists.findDirector, {
     slug: directorSlug
   })
 

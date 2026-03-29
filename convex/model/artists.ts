@@ -1,5 +1,6 @@
 import { v } from 'convex/values'
-import { query } from './_generated/server'
+import { QueryCtx, query } from '../_generated/server'
+import { ensureFP } from '../ensure'
 
 const movieGenres = [
   { id: 28, name: 'Action' },
@@ -23,47 +24,57 @@ const movieGenres = [
   { id: 37, name: 'Western' },
 ]
 
-export const getDirector = query({
+async function _findDirector(ctx: QueryCtx, slug: string) {
+  const directorName = slug.replace(/-/g, ' ').toLowerCase()
+
+  const allMovies = await ctx.db.query('movies').collect()
+  const directorMovies = allMovies.filter(
+    (m) => m.director.toLowerCase() === directorName
+  )
+
+  if (!directorMovies.length) return null
+
+  const moviesWithFavorites = await Promise.all(
+    directorMovies.map(async (movie) => {
+      const mtfs = await ctx.db
+        .query('moviesToFavorites')
+        .withIndex('by_movie', (q) => q.eq('movieId', movie._id))
+        .collect()
+
+      const favorites = await Promise.all(
+        mtfs.map(async (mtf) => await ctx.db.get(mtf.favoriteId))
+      )
+
+      return {
+        ...movie,
+        favoriteCount: mtfs.length,
+        favorites: favorites.filter(Boolean),
+      }
+    })
+  )
+
+  moviesWithFavorites.sort((a, b) => b.favoriteCount - a.favoriteCount)
+
+  return {
+    name: directorMovies[0].director,
+    movies: moviesWithFavorites,
+  }
+}
+
+export const findDirector = query({
   args: { slug: v.string() },
-  handler: async (ctx, args) => {
-    const directorName = args.slug.replace(/-/g, ' ').toLowerCase()
-
-    const allMovies = await ctx.db.query('movies').collect()
-    const directorMovies = allMovies.filter(
-      (m) => m.director.toLowerCase() === directorName
-    )
-
-    if (!directorMovies.length) return null
-
-    const moviesWithFavorites = await Promise.all(
-      directorMovies.map(async (movie) => {
-        const mtfs = await ctx.db
-          .query('moviesToFavorites')
-          .withIndex('by_movie', (q) => q.eq('movieId', movie._id))
-          .collect()
-
-        const favorites = await Promise.all(
-          mtfs.map(async (mtf) => await ctx.db.get(mtf.favoriteId))
-        )
-
-        return {
-          ...movie,
-          favoriteCount: mtfs.length,
-          favorites: favorites.filter(Boolean),
-        }
-      })
-    )
-
-    moviesWithFavorites.sort((a, b) => b.favoriteCount - a.favoriteCount)
-
-    return {
-      name: directorMovies[0].director,
-      movies: moviesWithFavorites,
-    }
-  },
+  handler: (ctx, args) => _findDirector(ctx, args.slug),
 })
 
-export const getAllDirectors = query({
+export const getDirector = query({
+  args: { slug: v.string() },
+  handler: (ctx, args) =>
+    _findDirector(ctx, args.slug).then(
+      ensureFP(`Director not found: ${args.slug}`)
+    ),
+})
+
+export const listDirectors = query({
   args: {
     offset: v.optional(v.number()),
     limit: v.optional(v.number()),
@@ -96,7 +107,7 @@ export const getAllDirectors = query({
   },
 })
 
-export const getAllGenres = query({
+export const listGenres = query({
   handler: async (ctx) => {
     const allMovies = await ctx.db.query('movies').collect()
     const allMtf = await ctx.db.query('moviesToFavorites').collect()

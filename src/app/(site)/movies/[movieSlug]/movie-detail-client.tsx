@@ -13,7 +13,7 @@ import { SectionContainer } from '@/components/globals/section-wrapper'
 import type { api } from '../../../../../convex/_generated/api'
 
 interface MovieDetailClientProps {
-  preloadedMovie: Preloaded<typeof api.movies.getMovie>
+  preloadedMovie: Preloaded<typeof api.model.movies.findMovie>
 }
 
 export const MovieDetailClient = ({

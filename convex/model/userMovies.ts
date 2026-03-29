@@ -1,8 +1,9 @@
 import { v } from 'convex/values'
-import { getAuthUserId } from '@convex-dev/auth/server'
-import { query, mutation } from './_generated/server'
+import { QueryCtx, query, mutation } from '../_generated/server'
+import { requireUser } from '../auth'
+import { ensureFP } from '../ensure'
 
-export const getUserMovies = query({
+export const listUserMovies = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
     const userMovies = await ctx.db
@@ -32,7 +33,7 @@ export const getUserMovies = query({
   },
 })
 
-export const getUserFavorites = query({
+export const listUserFavorites = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
     const userMovies = await ctx.db
@@ -64,35 +65,45 @@ export const getUserFavorites = query({
   },
 })
 
-export const checkMoviePosition = query({
+async function _findMovieAtPosition(ctx: QueryCtx, userId: string, position: number) {
+  const existing = await ctx.db
+    .query('userMovies')
+    .withIndex('by_user_position', (q) =>
+      q.eq('userId', userId).eq('position', position)
+    )
+    .first()
+
+  if (!existing) return null
+
+  const movie = await ctx.db.get(existing.movieId)
+  return {
+    ...existing,
+    movie: movie
+      ? {
+          _id: movie._id,
+          name: movie.name,
+          slug: movie.slug,
+          posterUrl: movie.posterUrl,
+          releaseDate: movie.releaseDate,
+        }
+      : null,
+  }
+}
+
+export const findMovieAtPosition = query({
   args: { userId: v.string(), position: v.number() },
-  handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query('userMovies')
-      .withIndex('by_user_position', (q) =>
-        q.eq('userId', args.userId).eq('position', args.position)
-      )
-      .first()
-
-    if (!existing) return null
-
-    const movie = await ctx.db.get(existing.movieId)
-    return {
-      ...existing,
-      movie: movie
-        ? {
-            _id: movie._id,
-            name: movie.name,
-            slug: movie.slug,
-            posterUrl: movie.posterUrl,
-            releaseDate: movie.releaseDate,
-          }
-        : null,
-    }
-  },
+  handler: (ctx, args) => _findMovieAtPosition(ctx, args.userId, args.position),
 })
 
-export const addUserMovie = mutation({
+export const getMovieAtPosition = query({
+  args: { userId: v.string(), position: v.number() },
+  handler: (ctx, args) =>
+    _findMovieAtPosition(ctx, args.userId, args.position).then(
+      ensureFP(`No movie at position ${args.position} for user ${args.userId}`)
+    ),
+})
+
+export const addMyMovie = mutation({
   args: {
     movie: v.object({
       id: v.number(),
@@ -105,8 +116,8 @@ export const addUserMovie = mutation({
     position: v.number(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Unauthorized')
+    const user = await requireUser(ctx)
+    const userId = user._id
 
     if (args.position < 1 || args.position > 4) {
       throw new Error('Position must be between 1 and 4')
@@ -167,14 +178,14 @@ export const addUserMovie = mutation({
   },
 })
 
-export const deleteUserMovie = mutation({
+export const deleteMyMovie = mutation({
   args: {
     movieId: v.id('movies'),
     position: v.number(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Unauthorized')
+    const user = await requireUser(ctx)
+    const userId = user._id
 
     const existing = await ctx.db
       .query('userMovies')

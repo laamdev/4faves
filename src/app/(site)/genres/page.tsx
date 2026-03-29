@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GenresPage() {
-  const preloadedGenres = await preloadQuery(api.artists.getAllGenres)
+  const preloadedGenres = await preloadQuery(api.model.artists.listGenres)
 
   return <GenresClient preloadedGenres={preloadedGenres} />
 }

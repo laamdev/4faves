@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { usePreloadedQuery, useConvexAuth } from 'convex/react'
+import { usePreloadedQuery } from 'convex/react'
+import { useUser } from '@clerk/nextjs'
 import type { Preloaded } from 'convex/react'
 
 import { MovieCarousel } from '@/components/favorites/movie-carousel'
@@ -16,14 +17,15 @@ import { getFormattedDate } from '@/lib/utils'
 import type { api } from '../../../../../convex/_generated/api'
 
 interface ListDetailClientProps {
-  preloadedFavorite: Preloaded<typeof api.favorites.getFavorite>
+  preloadedFavorite: Preloaded<typeof api.model.favorites.findFavorite>
 }
 
 export const ListDetailClient = ({
   preloadedFavorite
 }: ListDetailClientProps) => {
   const favorite = usePreloadedQuery(preloadedFavorite)
-  const { isAuthenticated } = useConvexAuth()
+  const { user } = useUser()
+  const isAuthenticated = !!user
 
   if (!favorite) return notFound()
 
@@ -43,6 +45,7 @@ export const ListDetailClient = ({
                 }
                 alt='Lists Hero'
                 fill
+                sizes='192px'
                 className='border object-cover object-center'
               />
             </div>
@@ -76,7 +79,7 @@ export const ListDetailClient = ({
           <div className='container'>
             {favorite.movies && favorite.movies.length > 0 ? (
               <MovieCarousel
-                movies={favorite.movies.map((movie) => ({
+                movies={favorite.movies.filter((m): m is NonNullable<typeof m> => m !== null).map((movie) => ({
                   movie: {
                     ...movie,
                     id: movie._id as any,

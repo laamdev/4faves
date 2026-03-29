@@ -8,10 +8,10 @@ import { DirectorBarChart } from '@/components/charts/director-bar-chart'
 import { Hero } from '@/components/globals/hero'
 import { SectionContainer } from '@/components/globals/section-wrapper'
 
-import { api } from '../../../../convex/_generated/api'
+import { api } from '../../../convex/_generated/api'
 
-type MoviesByDecadePreloaded = Preloaded<typeof api.movies.getMoviesByDecade>
-type MoviesByDirectorPreloaded = Preloaded<typeof api.movies.getMoviesByDirector>
+type MoviesByDecadePreloaded = Preloaded<typeof api.model.movies.listMoviesByDecade>
+type MoviesByDirectorPreloaded = Preloaded<typeof api.model.movies.listMoviesByDirector>
 
 interface StatsClientProps {
   preloadedMoviesByDecade: MoviesByDecadePreloaded

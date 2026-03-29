@@ -1,5 +1,5 @@
 import { v } from 'convex/values'
-import { query } from './_generated/server'
+import { query } from '../_generated/server'
 
 async function getFeaturedFavorites(
   ctx: any,
@@ -35,25 +35,25 @@ async function getFeaturedFavorites(
   )
 }
 
-export const getNewDirectors = query({
+export const listNewDirectors = query({
   handler: async (ctx) => {
     return getFeaturedFavorites(ctx, 'new_directors')
   },
 })
 
-export const getOldDirectors = query({
+export const listOldDirectors = query({
   handler: async (ctx) => {
     return getFeaturedFavorites(ctx, 'old_directors')
   },
 })
 
-export const getNewStars = query({
+export const listNewStars = query({
   handler: async (ctx) => {
     return getFeaturedFavorites(ctx, 'new_stars')
   },
 })
 
-export const getOldStars = query({
+export const listOldStars = query({
   handler: async (ctx) => {
     return getFeaturedFavorites(ctx, 'old_stars')
   },

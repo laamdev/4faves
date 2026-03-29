@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePreloadedQuery } from 'convex/react'
 import type { Preloaded } from 'convex/react'
 
-import { FeaturedCarousel } from '@/components/favorites/featured-carousel'
+import { FeaturedCarousel, type Artist } from '@/components/favorites/featured-carousel'
 import { SectionHeading } from '@/components/globals/section-heading'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Hero } from '@/components/globals/hero'
@@ -13,8 +13,8 @@ import { SectionContainer } from '@/components/globals/section-wrapper'
 import { api } from '../../../convex/_generated/api'
 import { getFormattedDate } from '@/lib/utils'
 
-type LastUpdatedPreloaded = Preloaded<typeof api.favorites.getMostRecentFavorite>
-type FeaturedPreloaded = Preloaded<typeof api.featured.getNewDirectors>
+type LastUpdatedPreloaded = Preloaded<typeof api.model.favorites.findMostRecentFavorite>
+type FeaturedPreloaded = Preloaded<typeof api.model.featured.listNewDirectors>
 
 function transformFeaturedForCarousel(
   items: Array<{
@@ -38,7 +38,7 @@ function transformFeaturedForCarousel(
       artist: {
         id: artist._id,
         name: artist.name,
-        role: artist.role,
+        role: artist.role as Artist['role'],
         headshotUrl: artist.headshotUrl ?? null,
       }
     }))
@@ -97,7 +97,7 @@ export function HomeClient({
                 rel='noopener noreferrer'
                 className='tw-animation text-primary'
               >
-                {"#fourfavorites"}
+                {"#4faves"}
               </a>
               <p>{" picks by celebrities."}</p>
             </div>

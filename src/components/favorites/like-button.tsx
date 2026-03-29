@@ -24,7 +24,7 @@ export const LikeButton = ({
   const [isLiked, setIsLiked] = useState(likedByUser)
   const [likesCount, setLikesCount] = useState(initialLikes)
   const [isLoading, setIsLoading] = useState(false)
-  const likeFavorite = useMutation(api.userLikes.likeFavorite)
+  const likeFavorite = useMutation(api.model.userLikes.toggleMyLike)
 
   const handleLike = async () => {
     try {

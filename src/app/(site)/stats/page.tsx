@@ -6,8 +6,8 @@ import { StatsClient } from '../stats-client'
 export default async function StatsPage() {
   const [preloadedMoviesByDecade, preloadedMoviesByDirector] =
     await Promise.all([
-      preloadQuery(api.movies.getMoviesByDecade),
-      preloadQuery(api.movies.getMoviesByDirector)
+      preloadQuery(api.model.movies.listMoviesByDecade),
+      preloadQuery(api.model.movies.listMoviesByDirector)
     ])
 
   return (

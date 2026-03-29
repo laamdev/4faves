@@ -1,93 +1,77 @@
 import { v } from 'convex/values'
-import { query, mutation } from './_generated/server'
-import { Id } from './_generated/dataModel'
+import { QueryCtx, query } from '../_generated/server'
+import { ensureFP } from '../ensure'
+
+async function _findMovie(ctx: QueryCtx, slug: string) {
+  const movie = await ctx.db
+    .query('movies')
+    .withIndex('by_slug', (q) => q.eq('slug', slug))
+    .first()
+
+  if (!movie) return null
+
+  const moviesToFavorites = await ctx.db
+    .query('moviesToFavorites')
+    .withIndex('by_movie', (q) => q.eq('movieId', movie._id))
+    .collect()
+
+  const favorites = await Promise.all(
+    moviesToFavorites.map(async (mtf) => {
+      const favorite = await ctx.db.get(mtf.favoriteId)
+      if (!favorite) return null
+
+      const artistsToFavorites = await ctx.db
+        .query('artistsToFavorites')
+        .withIndex('by_favorite', (q) => q.eq('favoriteId', favorite._id))
+        .collect()
+
+      const artists = await Promise.all(
+        artistsToFavorites.map(async (atf) => {
+          return await ctx.db.get(atf.artistId)
+        })
+      )
+
+      return {
+        ...favorite,
+        artists: artists.filter(Boolean),
+      }
+    })
+  )
+
+  const listCount = movie.listCount ?? 0
+
+  const allMovies = await ctx.db.query('movies').collect()
+  const higherCounts = new Set<number>()
+  for (const m of allMovies) {
+    const mc = m.listCount ?? 0
+    if (mc > listCount) {
+      higherCounts.add(mc)
+    }
+  }
+  const rank = higherCounts.size + 1
+
+  return {
+    ...movie,
+    rank,
+    listCount,
+    favorites: favorites.filter(Boolean),
+  }
+}
+
+export const findMovie = query({
+  args: { slug: v.string() },
+  handler: (ctx, args) => _findMovie(ctx, args.slug),
+})
 
 export const getMovie = query({
   args: { slug: v.string() },
-  handler: async (ctx, args) => {
-    const movie = await ctx.db
-      .query('movies')
-      .withIndex('by_slug', (q) => q.eq('slug', args.slug))
-      .first()
-
-    if (!movie) return null
-
-    const moviesToFavorites = await ctx.db
-      .query('moviesToFavorites')
-      .withIndex('by_movie', (q) => q.eq('movieId', movie._id))
-      .collect()
-
-    const favorites = await Promise.all(
-      moviesToFavorites.map(async (mtf) => {
-        const favorite = await ctx.db.get(mtf.favoriteId)
-        if (!favorite) return null
-
-        const artistsToFavorites = await ctx.db
-          .query('artistsToFavorites')
-          .withIndex('by_favorite', (q) => q.eq('favoriteId', favorite._id))
-          .collect()
-
-        const artists = await Promise.all(
-          artistsToFavorites.map(async (atf) => {
-            return await ctx.db.get(atf.artistId)
-          })
-        )
-
-        return {
-          ...favorite,
-          artists: artists.filter(Boolean),
-        }
-      })
-    )
-
-    const allMovies = await ctx.db.query('movies').collect()
-    const movieCounts: { id: Id<'movies'>; name: string; listCount: number }[] =
-      []
-
-    for (const m of allMovies) {
-      const count = (
-        await ctx.db
-          .query('moviesToFavorites')
-          .withIndex('by_movie', (q) => q.eq('movieId', m._id))
-          .collect()
-      ).length
-      movieCounts.push({ id: m._id, name: m.name, listCount: count })
-    }
-
-    movieCounts.sort((a, b) =>
-      b.listCount !== a.listCount
-        ? b.listCount - a.listCount
-        : a.name.localeCompare(b.name)
-    )
-
-    let currentRank = 0
-    let previousListCount = Number.MAX_SAFE_INTEGER
-    let rank = 0
-    let listCount = 0
-
-    for (const m of movieCounts) {
-      if (m.listCount < previousListCount) {
-        currentRank++
-      }
-      previousListCount = m.listCount
-
-      if (m.id === movie._id) {
-        rank = currentRank
-        listCount = m.listCount
-        break
-      }
-    }
-
-    return {
-      ...movie,
-      rank,
-      listCount,
-      favorites: favorites.filter(Boolean),
-    }
-  },
+  handler: (ctx, args) =>
+    _findMovie(ctx, args.slug).then(
+      ensureFP(`Movie not found: ${args.slug}`)
+    ),
 })
 
-export const getRankedMovies = query({
+export const listRankedMovies = query({
   args: {
     filter: v.optional(v.string()),
     sort: v.optional(v.string()),
@@ -111,17 +95,10 @@ export const getRankedMovies = query({
       )
     }
 
-    const moviesWithCounts = await Promise.all(
-      allMovies.map(async (movie) => {
-        const count = (
-          await ctx.db
-            .query('moviesToFavorites')
-            .withIndex('by_movie', (q) => q.eq('movieId', movie._id))
-            .collect()
-        ).length
-        return { ...movie, list_count: count }
-      })
-    )
+    const moviesWithCounts = allMovies.map((movie) => ({
+      ...movie,
+      list_count: movie.listCount ?? 0,
+    }))
 
     const sort = args.sort
     if (sort === 'name') {
@@ -167,19 +144,13 @@ export const getRankedMovies = query({
   },
 })
 
-export const getMoviesByDecade = query({
+export const listMoviesByDecade = query({
   handler: async (ctx) => {
     const allMovies = await ctx.db.query('movies').collect()
-    const moviesInFavorites = new Set<string>()
-
-    const allMtf = await ctx.db.query('moviesToFavorites').collect()
-    for (const mtf of allMtf) {
-      moviesInFavorites.add(mtf.movieId)
-    }
 
     const decadeMap = new Map<number, number>()
     for (const movie of allMovies) {
-      if (!moviesInFavorites.has(movie._id)) continue
+      if ((movie.listCount ?? 0) === 0) continue
       const year = new Date(movie.releaseDate).getFullYear()
       const decade = Math.floor(year / 10) * 10
       decadeMap.set(decade, (decadeMap.get(decade) ?? 0) + 1)
@@ -191,19 +162,13 @@ export const getMoviesByDecade = query({
   },
 })
 
-export const getMoviesByDirector = query({
+export const listMoviesByDirector = query({
   handler: async (ctx) => {
     const allMovies = await ctx.db.query('movies').collect()
-    const moviesInFavorites = new Set<string>()
-
-    const allMtf = await ctx.db.query('moviesToFavorites').collect()
-    for (const mtf of allMtf) {
-      moviesInFavorites.add(mtf.movieId)
-    }
 
     const directorMap = new Map<string, Set<string>>()
     for (const movie of allMovies) {
-      if (!moviesInFavorites.has(movie._id)) continue
+      if ((movie.listCount ?? 0) === 0) continue
       const directors = movie.director.split(',').map((d) => d.trim())
       for (const director of directors) {
         if (!directorMap.has(director)) {
@@ -222,7 +187,7 @@ export const getMoviesByDirector = query({
   },
 })
 
-export const getMoviesByGenre = query({
+export const listMoviesByGenre = query({
   args: { genreId: v.string() },
   handler: async (ctx, args) => {
     const allMovies = await ctx.db.query('movies').collect()
@@ -250,7 +215,7 @@ export const getMoviesByGenre = query({
   },
 })
 
-export const getMoviesSlugs = query({
+export const listMovieSlugs = query({
   handler: async (ctx) => {
     const movies = await ctx.db.query('movies').collect()
     return movies.map((m) => m.slug)

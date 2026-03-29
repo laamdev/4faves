@@ -1,6 +1,5 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
-import { authTables } from '@convex-dev/auth/server'
 
 const artistRoles = v.union(
   v.literal('actor'),
@@ -31,7 +30,14 @@ const featuredCategories = v.union(
 )
 
 export default defineSchema({
-  ...authTables,
+  users: defineTable({
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    profileImageUrl: v.optional(v.string()),
+  })
+    .index('by_clerk_id', ['clerkId'])
+    .index('by_email', ['email']),
 
   movies: defineTable({
     name: v.string(),
@@ -44,10 +50,12 @@ export default defineSchema({
     genres: v.optional(v.array(v.string())),
     letterboxdUrl: v.optional(v.string()),
     legacyId: v.optional(v.number()),
+    listCount: v.optional(v.number()),
   })
     .index('by_slug', ['slug'])
     .index('by_name', ['name'])
     .index('by_director', ['director'])
+    .index('by_list_count', ['listCount'])
     .searchIndex('search_name', { searchField: 'name' }),
 
   artists: defineTable({

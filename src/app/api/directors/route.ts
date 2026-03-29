@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const offset = (page - 1) * limit
 
   try {
-    const directors = await fetchQuery(api.artists.getAllDirectors, {
+    const directors = await fetchQuery(api.model.artists.listDirectors, {
       offset,
       limit
     })
